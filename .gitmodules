@@ -1,0 +1,12 @@
+[submodule "libraries/Fastor"]
+	path = libraries/Fastor
+	url = https://github.com/romeric/Fastor.git
+[submodule "libraries/xtensor"]
+	path = libraries/xtensor
+	url = https://github.com/xtensor-stack/xtensor.git
+[submodule "libraries/xtensor-blas"]
+	path = libraries/xtensor-blas
+	url = https://github.com/xtensor-stack/xtensor-blas.git
+[submodule "libraries/xtl"]
+	path = libraries/xtl
+	url = https://github.com/xtensor-stack/xtl.git
