@@ -10,3 +10,9 @@
 [submodule "libraries/xtl"]
 	path = libraries/xtl
 	url = https://github.com/xtensor-stack/xtl.git
+[submodule "libraries/lapack"]
+	path = libraries/lapack
+	url = https://github.com/Reference-LAPACK/lapack.git
+[submodule "libraries/OpenBLAS"]
+	path = libraries/OpenBLAS
+	url = https://github.com/xianyi/OpenBLAS.git

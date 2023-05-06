@@ -1,3 +1,6 @@
+#VSCode Config
+.vscode
+
 #CMake
 CMakeLists.txt.user
 CMakeCache.txt
