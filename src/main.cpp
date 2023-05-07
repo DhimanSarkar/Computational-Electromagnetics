@@ -23,7 +23,7 @@ int main(){
     B.setConstant(4*3.14*eps0*eps); //fill all the elements with 4*pi*Epsilon
 
     Eigen::Matrix<double,N,N> A;    //Defining Solution matrix "A" of AX=B
-A.setOnes();                        //Init
+    A.setOnes();                    //Init
     for(int i=0; i<N; i++)
     {
         for(int j=0; j<N; j++)
