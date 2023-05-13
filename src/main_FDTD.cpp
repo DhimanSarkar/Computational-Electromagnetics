@@ -11,7 +11,6 @@
 
 const double L = 1;     // Length of space (m)
 const int T = 1;        // Time Duration (s)
-const int t_max = 5;    // Maximum Cycles of Time Evaluation
 const double vp = 3e8;  //Phase Velocity
 const double freq = 1e9;// Source Frequency (Hz)
 const double lamb = 0.3;// Source Wavelength (m)
@@ -22,9 +21,17 @@ const double mu0 = 0;   // Vacume Permeability
 class Field {
     public:
         // Set number of nodes
-        int setN(int i)
+        int setN(int i, const char *str)
         {
-            N = i;
+            if (str == "intNode")
+            {
+                N=i;
+            }
+            else
+            {
+                N=i-1;
+            }
+            nodeType = str;
             initField();
             return 0;            
         }
@@ -40,42 +47,43 @@ class Field {
         }
 
         // Update Field
-        int updateSpace(Field pastE1, Field E2)
+        int updateSpace(Field D)
         {
-            for (int i = 1; i < (N-1)-1; i++) // Update internal fields
-            {
-                F.at(i) = pastE1.at(i) + dFact*(E2.at(i)-E2.at(i-1));
+            if (nodeType == "intNode")
+            { 
+                for (int i = 1; i < N-1; i++) // Update internal fields
+                {
+                    F.at(i) = F.at(i) + dFact*(D.at(i-1)-D.at(i));
+                }
             }
+            else // fracNode
+            {
+                for (int i = 0; i < N-1; i++) // Update internal fields
+                {
+                    F.at(i) = F.at(i) + dFact*(D.at(i)-D.at(i+1));
+                }
+            }
+
             return 0;
         }
 
                 // Set Source
-        int setupSource(int loc, const char *node) // Field Values at time=0
+        int setupSource(int loc, int time, const char *node) // Field Values at time=0
         {
             if (node == "intNode")
             {
-                F.at(loc) = 0;
-                for (int i = 1; i < (int)(lamb/delX); i++)
-                {
-                    F.at(loc+i) = F.at(loc-i) = sin(2*3.141519*freq * (0) - 2*3.141519/lamb * i*delX);
-                }
+                F.at(loc) = sin(2*3.141519*freq * (time*delT));
+                F.at(loc) = exp(-.5*(time/8)*(time/8));
+                //F.at(loc) = 1;
             }
             else
             {
-                for (int i = 0; i < (int)(lamb/delX); i++)
-                {
-                    F.at(loc+i) = sin(2*3.141519*freq * (-delT/2) + 2*3.141519/lamb * (i*delX-delX/2));
-                }
-                for (int j = 1; j < (int)(lamb/delX); j++)
-                {
-                    F.at(loc-j) = sin( 2*3.141519*freq * (-delT/2) - 2*3.141519/lamb * (j*delX-delX/2));
-                }
-                
+                std::cout << "Excitation for fractional nodes not available!";
             }
             
             return 0;
         }
-        
+
         // Pull values of the field
         double at(int i)
         {
@@ -103,6 +111,7 @@ class Field {
         double delX;    // Space Grid Size
         double delT;    // For no Disparsion, delT/delX = c
         double dFact;   //Disparsion Factor
+        const char *nodeType; //Integer/Fraction type node
         std::vector<double> F;
 
         // Initialize Field Vector with 0;
@@ -110,7 +119,8 @@ class Field {
         {
             delX = L/N;
             delT = vp/delX;
-            dFact = (1/vp)*(delT/delX);
+            dFact = 0.5;
+            
             for (int i = 0; i < N; i++)
             {
                 F.push_back((double)0.0);
@@ -156,39 +166,27 @@ class Data {
 int main(int argc, char *argv[]){
     std::system("cls"); //console>cls
     
-    int N = 51;             // Total Nodes
+    int N = 100;             // Total Nodes
+    const int t_max = 300;    // Maximum Cycles of Time Evaluation
 
     // Instances of Field Vectors
-    Field pastE; Field E;
-    Field pastH; Field H;
+    Field E;
+    Field H;
 
     Data fieldE("fieldE.txt"); 
     Data fieldH("fieldH.txt");
     
     // Initilizing Field Vectors
-    pastE.setN(N); E.setN(N);
-    pastH.setN(N); H.setN(N);
-
-    
-
-    // Setup Source
-    pastE.setupSource(N/2,"intNode");
-    pastH.setupSource(N/2,"frcNode");
-    
-    //
-    fieldE.write(pastE);
-    fieldH.write(pastH);
-    //std::cout<< "E0\t";       pastE.view();
-    //std::cout<< "H0\t";       pastH.view();
+    E.setN(N,"intNode");
+    H.setN(N,"fracNode");
 
     // Time evolution
     for (int t = 0; t < t_max; t++)
     {
         E.setBoundary("PEC"); // Update the boundary values
-        E.updateSpace(pastE,pastH);
-        pastE = E;
-        H.updateSpace(pastH,pastE);
-        pastH = H;
+        E.setupSource(N/2,t,"intNode");
+        H.updateSpace(E);
+        E.updateSpace(H);
 
         fieldE.write(E);
         fieldH.write(H);
