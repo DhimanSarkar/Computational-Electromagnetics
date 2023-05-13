@@ -1,18 +1,20 @@
 /*
 #############################################################################################
 #                            Computational Electromagnetics                                 #
-#  Implementation of Method of Moment (MoM) to solve Electrostatic Lince Charge Problem     #
+#  Implementation of Method of Moment (MoM) to solve Electrostatic Line Charge Problem      #
+#           https://github.com/DhimanSarkar/Computational-Electromagnetics.git              #
 #############################################################################################
 */
 
 #include<iostream>
+#include<fstream>
 #include "Eigen/Eigen"
 
 int main(){
     std::system("cls"); //console>cls
   
-    const int N = 100;       //No of elements
-    float L = 2;            //Length of wire
+    const int N = 100;      //No of elements
+    float L = 1;            //Length of wire
     float delX = L/N;       //Grid length
 
     float eps0 = 8.8541878128e-12;  //Vacume permitivity
@@ -42,6 +44,20 @@ int main(){
     X = A_inv * B;                  //Solving for "X" in AX+B
 
     std::cout<<X<<std::endl;
+    
+    // Saving data to file
+    std::ofstream file;
+    file.open("data.txt");
+    file.clear();
+    file << "\
+#############################################################################################\n\
+#                            Computational Electromagnetics                                 #\n\
+#  Implementation of Method of Moment (MoM) to solve Electrostatic Line Charge Problem      #\n\
+#               https://github.com/DhimanSarkar/Computational-Electromagnetics.git          #\n\
+#############################################################################################\n\n";
+    file <<"N=" << N << "\tL=" << L << "\tr=" << r << "\teps_r=" << eps << "\n\n";
+    file << X;
+    file.close();
 
     return 0;
     }
