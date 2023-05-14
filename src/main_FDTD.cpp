@@ -167,7 +167,7 @@ int main(int argc, char *argv[]){
     std::system("cls"); //console>cls
     
     int N = 100;             // Total Nodes
-    const int t_max = 300;    // Maximum Cycles of Time Evaluation
+    int t_max = 300;    // Maximum Cycles of Time Evaluation
 
     // Instances of Field Vectors
     Field E;
